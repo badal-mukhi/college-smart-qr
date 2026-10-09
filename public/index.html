@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="or">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMAS Student Portal - Subarnarekha Mahabidyalaya</title>
+    <style>
+        :root { --neon-cyan: #00f2fe; --glass-bg: rgba(255, 255, 255, 0.07); --glass-border: rgba(255, 255, 255, 0.12); }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; padding: 15px; margin: 0; min-height: 100vh; }
+        
+        .container { max-width: 740px; margin: auto; background: rgba(15, 32, 39, 0.8); backdrop-filter: blur(12px); padding: 25px; border-radius: 16px; border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.15); padding-bottom: 70px; position: relative; overflow: hidden; }
+        .container::before { content: "SUBARNAREKHA MAHABIDYALAYA"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); font-size: 2.3rem; font-weight: 900; color: rgba(255, 255, 255, 0.015); pointer-events: none; white-space: nowrap; width: 100%; text-align: center; }
+        
+        .school-header { background: linear-gradient(135deg, rgba(0, 114, 255, 0.15), rgba(0, 242, 254, 0.15)); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--glass-border); }
+        .school-header h2 { margin: 5px 0; font-size: 1.5rem; color: var(--neon-cyan); text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 8px var(--neon-cyan); }
+        
+        .datetime { font-size: 1.1rem; font-weight: bold; color: var(--neon-cyan); margin-bottom: 20px; background: var(--glass-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--glass-border); }
+        .section { margin: 20px 0; padding: 18px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 10px; text-align: left; position: relative; z-index: 1; }
+        .today-box { border-left: 5px solid var(--neon-cyan); background: rgba(0, 242, 254, 0.02); }
+        .routine-item { padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); font-size: 1rem; }
+        .time-tag { font-weight: bold; color: var(--neon-cyan); display: inline-block; width: 90px; }
+        
+        /* Premium Cyber Neon Routine Table Style */
+        .routine-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 15px 0; background: rgba(0, 0, 0, 0.4); border-radius: 8px; overflow: hidden; }
+        .routine-table th, .routine-table td { border: 1px solid var(--glass-border); padding: 10px 6px; text-align: center; color: white; }
+        .routine-table th { background: rgba(0, 242, 254, 0.15); color: var(--neon-cyan); font-weight: bold; text-shadow: 0 0 5px var(--neon-cyan); }
+        .routine-table tr:hover { background: rgba(255,255,255,0.03); }
+        .highlight-day { background: rgba(0, 242, 254, 0.1) !important; font-weight: bold; border-left: 4px solid var(--neon-cyan) !important; }
+        
+        .reminder-box { background: rgba(244, 63, 94, 0.15); border: 1px solid #f43f5e; color: #fda4af; padding: 12px; margin-bottom: 15px; border-radius: 8px; font-weight: bold; border-left: 5px solid #f43f5e; }
+        button { background: linear-gradient(135deg, #0072ff, #00f2fe); color: white; border: none; padding: 12px 20px; font-size: 1rem; border-radius: 6px; cursor: pointer; margin: 5px 0; width: 100%; font-weight: bold; transition: 0.3s; }
+        input[type="text"], input[type="date"], select, textarea { width: 96%; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: white; border-radius: 6px; margin-bottom: 10px; }
+        .grid-2 { display: flex; gap: 10px; }
+        .grid-2 input, .grid-2 select { width: 48%; }
+        .hd-img { max-width: 100%; height: auto; margin-top: 10px; border-radius: 6px; border: 2px solid var(--neon-cyan); }
+        .footer-credit { margin-top: 40px; padding: 12px; background: #000; color: #00ff00; font-weight: bold; border-radius: 6px; font-family: 'Courier New', monospace; box-shadow: 0 0 12px #00ff00; text-shadow: 0 0 5px #00ff00; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="school-header">
+        <h2>SUBARNAREKHA H.S. SCHOOL</h2>
+        <p>BALIAPAL, BALASORE</p>
+        <span style="font-size: 0.9rem; color: var(--neon-cyan);">⚡ +2 1st Year (Science) Time Table 2026-2027 ⚡</span>
+    </div>
+    
+    <!-- Real-time Clock Dashboard -->
+    <div class="datetime" id="live-clock">Loading System Clock Engine...</div>
+    <div id="global-reminder-box" class="reminder-box hidden">🔔 REMINDER: <span id="rem-text">No active alerts.</span></div>
+
+    <!-- NEW: OFFICIAL FULL WEEK ROUTINE TABLE MATRIX (FIRST VISIBLE OBJECT) -->
+    <div class="section" style="border-left: 5px solid #00f2fe;">
+        <h3 style="color: var(--neon-cyan); margin-top:0;">📋 Master Class Routine Matrix</h3>
+        <table class="routine-table">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>10:00AM</th>
+                    <th>10:45AM</th>
+                    <th>11:30AM</th>
+                    <th>12:15PM</th>
+                    <th>01:00PM</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="row-1">
+                    <td><b>MON</b></td>
+                    <td>MILO-H-4<br><span style="font-size:0.7rem;color:#aaa;">MILS-H-12</span></td>
+                    <td>PHY-H-4</td>
+                    <td>CHE-H-4</td>
+                    <td>EE-H-4</td>
+                    <td>COMP.SC<br><span style="font-size:0.7rem;color:#00f2fe;">LAB</span></td>
+                </tr>
+                <tr id="row-2">
+                    <td><b>TUE</b></td>
+                    <td>BOT-H-4</td>
+                    <td>CHEM-H-4</td>
+                    <td>MATH-H-4</td>
+                    <td>ENG-H-4</td>
+                    <td>COMP.SC<br><span style="font-size:0.7rem;color:#00f2fe;">LAB</span></td>
+                </tr>
+                <tr id="row-3">
+                    <td><b>WED</b></td>
+                    <td>PHY-H-4</td>
+                    <td>MATH-H-4</td>
+                    <td>ZOOL-H-4</td>
+                    <td>ENG-H-4</td>
+                    <td>COMP.SC<br><span style="font-size:0.7rem;color:#00f2fe;">LAB</span></td>
+                </tr>
+                <tr id="row-4">
+                    <td><b>THU</b></td>
+                    <td>ENG-H-4</td>
+                    <td>MILO-H-4<br><span style="font-size:0.7rem;color:#aaa;">MILS-H-12</span></td>
+                    <td>CHE-H-4</td>
+                    <td>MATH-H-4</td>
+                    <td>🏢 **<br><span style="font-size:0.7rem;color:#ff3d00;">BREAK</span></td>
+                </tr>
+                <tr id="row-5">
+                    <td><b>FRI</b></td>
+                    <td>MATH-H-4</td>
+                    <td>ZOOL-H-4</td>
+                    <td>PHY-H-4</td>
+                    <td>COMP.SC<br><span style="font-size:0.7rem;color:#00f2fe;">LAB</span></td>
+                    <td>EE-H-4</td>
+                </tr>
+                <tr id="row-6">
+                    <td><b>SAT</b></td>
+                    <td>ENG-H-4</td>
+                    <td>CHE-H-4</td>
+                    <td>BOT-H-4</td>
+                    <td>PHY-H-4</td>
+                    <td>COMP.SC<br><span style="font-size:0.7rem;color:#00f2fe;">LAB</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- AUTO ACADEMIC TIMETABLE SLOT FOR TODAY -->
+    <div class="section today-box">
+        <h3 id="today-day-title" style="color: var(--neon-cyan); margin-top:0;">📅 Today's Live Academic Schedule</h3>
+        <div id="today-routine-details" style="font-family: monospace; font-size: 0.95rem;">Extracting schedule packet logs...</div>
+    </div>
+
+    <!-- ATTENDANCE GATEWAY -->
+    <div class="section" style="border-left: 5px solid #ffeb3b;">
+        <h3 style="color: #ffeb3b; margin: 0 0 10px 0;">🎒 Secure Subject Attendance Gateway</h3>
+        <input type="text" id="student-pass-input" placeholder="Enter Security Access Code (756026)...">
+        <div class="grid-2">
+            <input type="text" id="student-roll-input" placeholder="Enter Roll Number...">
+            <select id="student-subject-select">
+                <option value="PHY">Physics (PHY)</option><option value="CHE">Chemistry (CHE)</option>
+                <option value="MATH">Mathematics (MATH)</option><option value="ENG">English (ENG)</option>
+                <option value="BOT">Botany (BOT)</option><option value="ZOOL">Zoology (ZOOL)</option>
+                <option value="MIL">MIL-Odia/Sanskrit</option><option value="COMP.SC">Computer Science (COMP.SC)</option>
+            </select>
+        </div>
+        <button style="background: linear-gradient(135deg, #ffc107, #ff9800); color:black;" onclick="studentTextCheckIn()">✅ Submit Attendance</button>
+        <button style="background: linear-gradient(135deg, #00e676, #00b0ff); color:black;" onclick="startVoiceRollCall()">🎙️ Voice Check-In</button>
+        <p id="attendance-status" style="font-weight:bold; margin-top:10px; color:var(--neon-cyan);"></p>
+    </div>
+
+    <!-- HOMEWORK EXPLORER -->
+    <div class="section" style="border-left: 5px solid #00e676;">
+        <h3 style="color: #00e676; margin: 0 0 10px 0;">🔎 Past Homework & Notes Explorer</h3>
+        <div class="grid-2">
+            <input type="date" id="search-hw-date">
+            <select id="search-hw-subject">
+                <option value="PHY">Physics</option><option value="CHE">Chemistry</option>
+                <option value="MATH">Mathematics</option><option value="ENG">English</option>
+                <option value="BOT">Botany</option><option value="ZOOL">Zoology</option>
+                <option value="MIL">MIL</option><option value="COMP.SC">Computer Science</option>
+            </select>
+        </div>

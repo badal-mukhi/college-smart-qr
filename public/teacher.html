@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="or">
+<head>
+    <meta charset="UTF-8">
+    <title>SMAS Authority Control Panel</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f2027; color: white; padding: 20px; text-align: center; }
+        .box { max-width: 650px; margin: auto; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); text-align: left; }
+        input, textarea, select, button { width: 96%; padding: 10px; margin: 10px 0; border-radius: 6px; background: #000; color: #00ff00; border: 1px solid #00ff00; font-family: monospace; font-weight: bold; }
+        button { background: #00ff00; color: black; cursor: pointer; }
+        .log-box { background: #000; color: #00ff00; padding: 10px; border-radius: 6px; border: 1px solid #00ff00; max-height: 150px; overflow-y: auto; font-size: 0.85rem; white-space: pre-wrap; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2 style="color: #00ff00; text-shadow: 0 0 5px #00ff00; text-align:center;">⚙️ Secret Forensic Audit Vault (Admin Console)</h2>
+    <input type="password" id="admin-key" placeholder="Enter Admin Master Key (BADAL)...">
+    <button onclick="unlockDashboard()">Decrypt Admin Console</button>
+
+    <div id="control-panel" class="hidden">
+        <!-- BULK UPLOAD -->
+        <h3>📋 Bulk Student & Subject Matrix Upload:</h3>
+        <textarea id="bulk-reg-input" rows="4" placeholder="Format: Roll,Name&#10;101,Badal Das&#10;102,Rakesh Kumar"></textarea>
+        <button onclick="processBulkRegistration()">Save Entire Database Matrix</button>
+
+        <!-- TEACHER HOMEWORK DISPATCHER -->
+        <h3 style="color:#ab47bc;">👨‍🏫 Teacher Assignment Dispatcher (Pass: 756026)</h3>
+        <input type="password" id="t-pass" placeholder="Enter Teacher Password (756026)...">
+        <input type="date" id="hw-date">
+        <select id="hw-sub">
+            <option value="PHY">Physics</option><option value="CHE">Chemistry</option>
+            <option value="MATH">Mathematics</option><option value="COMP.SC">Computer Science</option>
+        </select>
+        <textarea id="hw-note" placeholder="Write homework questions or text notes here..."></textarea>
+        <input type="file" id="hw-file" accept="image/*">
+        <button style="background:#ab47bc; color:white;" onclick="uploadHomework()">Push Assignment Packet to Cloud</button>
+
+        <!-- REMINDER SYSTEM -->
+        <h3>🔔 Set Smart System Reminder Alert:</h3>
+        <input type="text" id="rem-input" placeholder="e.g., Tomorrow is Campus Holiday...">
+        <button onclick="setReminder()">Broadcast Reminder</button>
+
+        <!-- PRESENT/ABSENT REALTIME SUMMARY -->
+        <h3>📊 Realtime Attendance Directory Layout:</h3>
+        <div class="log-box" id="directory-area">No records synced.</div>
+    </div>
+</div>
+
+<script>
+    function unlockDashboard() {
+        if(document.getElementById('admin-key').value === "BADAL") {
+            document.getElementById('control-panel').classList.remove('hidden');
+            displayStudents();
+            alert("🔓 System Vault Unlocked successfully.");
+        } else { alert("🚨 ACCESS DENIED!"); }
+    }
+
+    function processBulkRegistration() {
+        let text = document.getElementById('bulk-reg-input').value.trim();
+        if(text === "") { alert("Please input rows data!"); return; }
+        
+        let db = JSON.parse(localStorage.getItem('student_db')) || {};
+        let lines = text.split('\n');
+        
+        lines.forEach(line => {
+            let parts = line.split(',');
+            if(parts.length >= 2) { 
+                let roll = parts[0].trim();
+                let name = parts[1].trim();
+                db[roll] = { name: name, blocked: false }; 
+            }
+        });
+        localStorage.setItem('student_db', JSON.stringify(db));
+        alert("📂 Database Sync Completed!"); 
+        displayStudents();
+    }
+
+    function displayStudents() {
+        let db = JSON.parse(localStorage.getItem('student_db')) || {};
+        let area = document.getElementById('directory-area');
+        let keys = Object.keys(db);
+        if(keys.length > 0) {
+            area.innerText = keys.map(r => "Roll: " + r + " | Name: " + db[r].name).join('\n');
+        } else {
+            area.innerText = "No records synced.";
+        }
+    }
+
+    function uploadHomework() {
+        let p = document.getElementById('t-pass').value;
+        let d = document.getElementById('hw-date').value;
+        let s = document.getElementById('hw-sub').value;
+        let n = document.getElementById('hw-note').value;
+        let f = document.getElementById('hw-file').files[0];
+
+        if(p !== "756026" || !d) { alert("Invalid Credentials or Date!"); return; }
+        let packageData = { note: n, img: "" };
+        let storageKey = "hw_" + d + "_" + s;
+
+        if(f) {
+            let r = new FileReader();
+            r.onload = function(e) { 
+                packageData.img = e.target.result; 
+                localStorage.setItem(storageKey, JSON.stringify(packageData)); 
+                alert("✅ HW Uploaded to Cloud Node!"); 
+            };
+            r.readAsDataURL(f);
+        } else { 
+            localStorage.setItem(storageKey, JSON.stringify(packageData)); 
+            alert("✅ Notes Uploaded!"); 
+        }
+    }
+
+    function setReminder() {
+        let text = document.getElementById('rem-input').value;
+        localStorage.setItem('smas_global_reminder', text);
+        alert("🔔 Reminder Sync Completed!");
+    }
+</script>
+</body>
+</html>
